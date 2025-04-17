@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feistel Cipher Simulation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-lock"></i> Feistel Cipher Simulation</h1>
+            <p class="subtitle">Complete round-by-round visualization</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="control-panel">
+                <div class="panel-section input-section">
+                    <h2><i class="fas fa-sliders-h"></i> Input Parameters</h2>
+                    
+                    <div class="input-card">
+                        <h3><i class="fas fa-keyboard"></i> Input Configuration</h3>
+                        
+                        <div class="radio-group card">
+                            <label class="group-label"><i class="fas fa-code"></i> Input Type</label>
+                            <div class="radio-options">
+                                <label class="radio-option">
+                                    <input type="radio" id="input-text" name="input-type" value="text" checked>
+                                    <span class="radio-btn"></span>
+                                    <span class="option-content">
+                                        <i class="fas fa-font"></i>
+                                        <span>Text Input</span>
+                                    </span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" id="input-binary" name="input-type" value="binary">
+                                    <span class="radio-btn"></span>
+                                    <span class="option-content">
+                                        <i class="fas fa-code"></i>
+                                        <span>Binary Input</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div id="text-input-container" class="input-group card">
+                            <label for="plaintext"><i class="fas fa-font"></i> Text Input</label>
+                            <div class="input-wrapper">
+                                <textarea id="plaintext" placeholder="Enter text to encrypt/decrypt" rows="2"></textarea>
+                                <div class="input-footer">
+                                    <span class="char-count">0 characters</span>
+                                    <button class="btn-icon small sample-btn" data-type="text">
+                                        <i class="fas fa-lightbulb"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="binary-input-container" class="input-group card" style="display:none;">
+                            <label for="binary-input"><i class="fas fa-code"></i> Binary Input</label>
+                            <div class="input-wrapper">
+                                <textarea id="binary-input" placeholder="Enter binary string (e.g., 01010101)" rows="2"></textarea>
+                                <div class="input-footer">
+                                    <span class="char-count">0 bits</span>
+                                    <span class="validation-status valid" style="display:none;">
+                                        <i class="fas fa-check-circle"></i> Valid binary
+                                    </span>
+                                    <span class="validation-status invalid" style="display:none;">
+                                        <i class="fas fa-exclamation-circle"></i> Invalid characters
+                                    </span>
+                                    <button class="btn-icon small sample-btn" data-type="binary">
+                                        <i class="fas fa-lightbulb"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="hint">
+                                <i class="fas fa-info-circle"></i> Must be even length for proper splitting
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-card">
+                        <h3><i class="fas fa-key"></i> Encryption Settings</h3>
+                        
+                        <div class="input-group card">
+                            <label for="key"><i class="fas fa-key"></i> Cipher Key</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="key" placeholder="Enter encryption key (text or binary)">
+                                <div class="input-footer">
+                                    <span class="key-info">Enter text or binary key</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="input-row">
+                            <div class="input-group card">
+                                <label for="rounds"><i class="fas fa-redo"></i> Rounds</label>
+                                <div class="range-container">
+                                    <input type="range" id="rounds-range" min="1" max="16" value="4">
+                                    <input type="number" id="rounds" min="1" max="16" value="4">
+                                </div>
+                            </div>
+                            
+                            <div class="input-group card">
+                                <label for="logic-gate"><i class="fas fa-project-diagram"></i> Logic Gate</label>
+                                <div class="styled-select">
+                                    <select id="logic-gate">
+                                        <option value="XOR">XOR</option>
+                                        <option value="AND">AND</option>
+                                        <option value="OR">OR</option>
+                                        <option value="NAND">NAND</option>
+                                        <option value="NOR">NOR</option>
+                                    </select>
+                                    <div class="select-arrow">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="radio-group card">
+                            <label class="group-label"><i class="fas fa-random"></i> Operation Mode</label>
+                            <div class="radio-options">
+                                <label class="radio-option">
+                                    <input type="radio" id="operation-encrypt" name="operation" value="encrypt" checked>
+                                    <span class="radio-btn"></span>
+                                    <span class="option-content">
+                                        <i class="fas fa-lock"></i>
+                                        <span>Encrypt</span>
+                                    </span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" id="operation-decrypt" name="operation" value="decrypt">
+                                    <span class="radio-btn"></span>
+                                    <span class="option-content">
+                                        <i class="fas fa-lock-open"></i>
+                                        <span>Decrypt</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button id="process-btn" class="btn-primary">
+                            <i class="fas fa-play"></i> Run Cipher
+                        </button>
+                        <button id="reset-btn" class="btn-secondary">
+                            <i class="fas fa-undo"></i> Reset All
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="panel-section output-section">
+                    <h2><i class="fas fa-file-export"></i> Output</h2>
+                    <div id="error-message" class="error"></div>
+                    
+                    <div class="output-group">
+                        <label for="result"><i class="fas fa-font"></i> Result:</label>
+                        <textarea id="result" rows="3" readonly></textarea>
+                    </div>
+                    
+                    <div class="output-group">
+                        <label for="binary-result"><i class="fas fa-code"></i> Binary Result:</label>
+                        <textarea id="binary-result" rows="3" readonly class="binary"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="visualization-panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-project-diagram"></i> Round-by-Round Visualization</h2>
+                </div>
+                
+                <div class="visualization-container">
+                    <div id="feistel-diagram">
+                        <img src="{{ url_for('static', filename='images/feistel-diagram.png') }}" alt="Feistel Cipher Diagram" class="diagram-img">
+                    </div>
+                    
+                    <div id="rounds-container" class="rounds-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
